@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LLM-ADS Protocol — Posts X</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ink:#080C14;
+  --deep:#0B1120;
+  --card:#111827;
+  --card2:#141C2E;
+  --gold:#D4A853;
+  --gold2:#F0C060;
+  --goldglow:rgba(212,168,83,0.15);
+  --en:#34D399;
+  --ar:#F87171;
+  --fr:#60A5FA;
+  --muted:#6B7280;
+  --dim:#374151;
+  --text:#E5E7EB;
+  --white:#F9FAFB;
+  --border:rgba(255,255,255,0.07);
+  --bordergold:rgba(212,168,83,0.3);
+}
+
+body{
+  background:var(--ink);
+  min-height:100vh;
+  font-family:'Inter',sans-serif;
+  color:var(--text);
+  padding:0 0 80px;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(212,168,83,0.08) 0%,transparent 70%);
+}
+
+/* ── HERO ── */
+.hero{
+  text-align:center;
+  padding:64px 24px 48px;
+  position:relative;
+}
+.hero::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:50%;transform:translateX(-50%);
+  width:120px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.hero-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:20px;display:block;
+  opacity:0.8;
+}
+.hero h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(32px,6vw,56px);
+  font-weight:800;
+  color:var(--white);
+  line-height:1.1;
+  margin-bottom:16px;
+  letter-spacing:-1px;
+}
+.hero h1 em{
+  color:var(--gold);font-style:normal;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.hero-sub{
+  font-size:15px;color:var(--muted);font-weight:300;
+  max-width:480px;margin:0 auto;line-height:1.6;
+}
+.lang-pills{
+  display:flex;gap:10px;justify-content:center;margin-top:24px;flex-wrap:wrap;
+}
+.lang-pill{
+  padding:6px 16px;border-radius:50px;
+  font-size:12px;font-weight:600;letter-spacing:1px;
+  border:1px solid;font-family:'JetBrains Mono',monospace;
+}
+.lang-pill.fr{border-color:var(--fr);color:var(--fr);background:rgba(96,165,250,0.08);}
+.lang-pill.en{border-color:var(--en);color:var(--en);background:rgba(52,211,153,0.08);}
+.lang-pill.ar{border-color:var(--ar);color:var(--ar);background:rgba(248,113,113,0.08);}
+
+/* ── GRID ── */
+.grid{
+  max-width:920px;margin:56px auto 0;
+  padding:0 20px;
+  display:flex;flex-direction:column;gap:40px;
+}
+
+/* ── TWEET CARD ── */
+.tcard{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  overflow:hidden;
+  transition:border-color .3s,box-shadow .3s;
+  position:relative;
+}
+.tcard::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  opacity:0;transition:opacity .3s;
+}
+.tcard:hover{
+  border-color:var(--bordergold);
+  box-shadow:0 0 60px rgba(212,168,83,0.07);
+}
+.tcard:hover::before{opacity:1;}
+
+/* card top bar */
+.tcard-top{
+  display:flex;align-items:center;
+  padding:20px 24px 16px;
+  gap:12px;
+  border-bottom:1px solid var(--border);
+}
+.post-num{
+  font-family:'Syne',sans-serif;
+  font-size:13px;font-weight:800;
+  color:var(--ink);background:var(--gold);
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.post-theme{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--muted);
+}
+.x-logo{
+  margin-left:auto;
+  width:20px;height:20px;opacity:0.2;flex-shrink:0;
+}
+
+/* lang tabs */
+.lang-tabs{
+  display:flex;
+  border-bottom:1px solid var(--border);
+}
+.ltab{
+  flex:1;padding:13px 0;
+  font-size:12px;font-weight:600;letter-spacing:2px;
+  text-transform:uppercase;cursor:pointer;
+  border:none;background:transparent;
+  color:var(--muted);transition:all .2s;
+  font-family:'JetBrains Mono',monospace;
+  position:relative;
+}
+.ltab::after{
+  content:'';position:absolute;bottom:0;left:12px;right:12px;
+  height:2px;border-radius:2px 2px 0 0;
+  transform:scaleX(0);transition:transform .25s;
+}
+.ltab.fr{color:var(--fr);} .ltab.fr::after{background:var(--fr);}
+.ltab.en{color:var(--en);} .ltab.en::after{background:var(--en);}
+.ltab.ar{color:var(--ar);} .ltab.ar::after{background:var(--ar);}
+.ltab.active::after{transform:scaleX(1);}
+.ltab:not(.active){color:var(--dim);}
+
+/* panels */
+.panels{position:relative;}
+.panel{display:none;padding:28px 24px 0;}
+.panel.active{display:block;}
+.panel[data-lang="ar"]{direction:rtl;}
+
+.tweet-body{
+  font-size:16px;line-height:1.85;color:var(--white);
+  font-weight:400;white-space:pre-wrap;
+  margin-bottom:24px;
+  font-family:'Inter',sans-serif;
+}
+.tweet-body strong,.tweet-body b{
+  color:var(--gold2);font-weight:600;
+}
+.tweet-body .tag{color:var(--fr);font-weight:500;}
+.tweet-body .mention{color:var(--en);font-weight:500;}
+
+/* footer */
+.card-footer{
+  padding:0 24px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+}
+.card-footer[data-lang="ar"]{flex-direction:row-reverse;}
+
+.char-info{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--dim);
+}
+
+.cbtn{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 20px;border-radius:50px;
+  font-size:12px;font-weight:600;letter-spacing:.5px;
+  cursor:pointer;border:1px solid;
+  transition:all .2s;font-family:'Inter',sans-serif;
+  user-select:none;
+}
+.cbtn:hover{transform:translateY(-2px);filter:brightness(1.15);}
+.cbtn:active{transform:translateY(0);}
+.cbtn.fr{border-color:var(--fr);color:var(--fr);background:rgba(96,165,250,0.08);}
+.cbtn.en{border-color:var(--en);color:var(--en);background:rgba(52,211,153,0.08);}
+.cbtn.ar{border-color:var(--ar);color:var(--ar);background:rgba(248,113,113,0.08);}
+.cbtn.done{opacity:.5;pointer-events:none;}
+
+.cbtn svg{width:13px;height:13px;flex-shrink:0;}
+
+/* ── FOOTER BAR ── */
+.footer-bar{
+  max-width:920px;margin:56px auto 0;padding:0 20px;
+}
+.footer-inner{
+  border:1px dashed var(--bordergold);border-radius:20px;
+  padding:28px 32px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:20px;flex-wrap:wrap;
+}
+.footer-text{
+  font-size:14px;color:var(--muted);line-height:1.6;
+}
+.footer-text strong{color:var(--gold);}
+.copy-all-row{display:flex;gap:10px;flex-wrap:wrap;}
+.copy-all-btn{
+  padding:10px 22px;border-radius:50px;
+  border:1px solid var(--bordergold);
+  background:var(--goldglow);
+  color:var(--gold);
+  font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;
+  font-family:'Inter',sans-serif;
+}
+.copy-all-btn:hover{background:rgba(212,168,83,0.25);transform:translateY(-1px);}
+
+/* toast */
+.toast{
+  position:fixed;bottom:32px;right:32px;
+  background:var(--card2);border:1px solid var(--bordergold);
+  color:var(--gold);padding:12px 24px;border-radius:12px;
+  font-size:14px;font-weight:500;
+  opacity:0;transform:translateY(12px);
+  transition:all .3s;pointer-events:none;
+  z-index:9999;font-family:'Inter',sans-serif;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.toast.show{opacity:1;transform:translateY(0);}
+
+@media(max-width:600px){
+  .tcard-top{padding:16px 18px 14px;}
+  .panel{padding:22px 18px 0;}
+  .card-footer{padding:0 18px 20px;}
+  .tweet-body{font-size:15px;}
+  .footer-inner{flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="hero-label">LLM-ADS Protocol · 2025 · Mourad Touih</span>
+  <h1>4 Posts pour <em>X</em></h1>
+  <p class="hero-sub">Trois langues. Un protocole. Une idée qui appartient désormais au monde.</p>
+  <div class="lang-pills">
+    <span class="lang-pill fr">FR</span>
+    <span class="lang-pill en">EN</span>
+    <span class="lang-pill ar">AR</span>
+  </div>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<div class="footer-bar">
+  <div class="footer-inner">
+    <div class="footer-text">
+      <strong>Copier tous les posts</strong><br>
+      Choisissez la langue pour tout le thread
+    </div>
+    <div class="copy-all-row">
+      <button class="copy-all-btn" onclick="copyAll('fr')">🇫🇷 Tout FR</button>
+      <button class="copy-all-btn" onclick="copyAll('en')">🇬🇧 All EN</button>
+      <button class="copy-all-btn" onclick="copyAll('ar')">🇸🇦 كل AR</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Copié !</div>
+
+<script>
+const POSTS = [
+  {
+    num: 1,
+    theme: "L'Annonce",
+    fr: `🚀 Aujourd'hui, j'offre gratuitement au monde de l'IA un protocole ouvert :
+
+<b>LLM-ADS Protocol</b> — une constitution économique éthique pour la publicité dans les LLMs.
+
+✦ Séparation cognitive totale : zéro pub dans les réponses
+✦ White Data + Score Qualité (SQL) avant l'argent
+✦ Autorité de gouvernance indépendante (AQIA)
+
+Cadeau 100% libre à :
+<b>@xai @AnthropicAI @OpenAI @GoogleDeepMind @MetaAI</b>
+
+#LLMADS #AIEthics #OpenProtocol`,
+
+    en: `🚀 Today I'm gifting the AI world a free open protocol:
+
+<b>LLM-ADS Protocol</b> — an ethical economic constitution for advertising inside LLMs.
+
+✦ Total cognitive separation: zero ads inside model responses
+✦ White Data + Quality Score (SQL) before money
+✦ Independent multi-stakeholder authority (AQIA)
+
+Free gift 100% to:
+<b>@xai @AnthropicAI @OpenAI @GoogleDeepMind @MetaAI</b>
+
+#LLMADS #AIEthics #OpenProtocol`,
+
+    ar: `🚀 اليوم أهدي العالم بروتوكولاً مفتوحاً مجانياً:
+
+<b>LLM-ADS Protocol</b> — دستور اقتصادي أخلاقي للإعلانات داخل نماذج الذكاء الاصطناعي.
+
+✦ فصل معرفي كامل: صفر إعلانات داخل الردود
+✦ بيانات بيضاء + Score الجودة (SQL) قبل المال
+✦ هيئة حوكمة مستقلة متعددة الأطراف (AQIA)
+
+هدية مجانية 100٪ لـ:
+<b>@xai @AnthropicAI @OpenAI @GoogleDeepMind @MetaAI</b>
+
+#LLMADS #AIEthics #OpenProtocol`
+  },
+
+  {
+    num: 2,
+    theme: "Le Problème",
+    fr: `La grande question irrésolue de l'IA en 2026 :
+
+« Comment monétiser une intelligence sans corrompre sa neutralité ? »
+
+OpenAI, Anthropic, Google — aucun n'a de réponse structurellement stable.
+
+<b>LLM-ADS</b> est la première réponse qui traite le problème à sa vraie profondeur : pas une feature pub — une <b>architecture de gouvernance</b>.
+
+Évaluation analytique : <b>8.6/10</b> (basée sur GII · McKinsey · EPO · EU AI Act — évaluation indépendante)
+
+#LLMADS #GenerativeAI #AIgovernance`,
+
+    en: `The unresolved question of AI in 2026:
+
+"How do you monetize intelligence without corrupting its neutrality?"
+
+OpenAI, Anthropic, Google — none has a structurally stable answer.
+
+<b>LLM-ADS</b> is the first answer that addresses the problem at its true depth: not an ad feature — a <b>governance architecture</b>.
+
+Analytical evaluation: <b>8.6/10</b> (based on GII · McKinsey · EPO · EU AI Act — independent assessment)
+
+#LLMADS #GenerativeAI #AIgovernance`,
+
+    ar: `السؤال الكبير غير المحلول في الذكاء الاصطناعي 2026:
+
+«كيف نربح من الذكاء الاصطناعي دون أن نفسد حيادته؟»
+
+OpenAI وAnthropic وGoogle — لا أحد لديه إجابة هيكلية مستقرة.
+
+<b>LLM-ADS</b> هو أول إجابة تعالج المشكلة بعمقها الحقيقي: ليس ميزة إعلانية — بل <b>معمارية حوكمة</b>.
+
+التقييم التحليلي: <b>8.6/10</b> (مبني على GII · McKinsey · EPO · EU AI Act — تقييم مستقل)
+
+#LLMADS #GenerativeAI #AIgovernance`
+  },
+
+  {
+    num: 3,
+    theme: "L'Architecture",
+    fr: `Comment ça marche ? L'image de l'avion :
+
+L'hublot donne sur le monde.
+L'écran propose des destinations.
+Le pilote décide du cap.
+<b>Le passager choisit librement.</b>
+
+Dans <b>LLM-ADS</b> :
+↳ La conversation = cockpit (pur, non pollué)
+↳ La fenêtre contextuelle = écran séparé (activé avec consentement)
+↳ L'IA = intermédiaire honnête, jamais vendeur
+
+Vos données ? Elles restent dans l'écosystème.
+Personne ne les achète. Jamais.
+
+#LLMADS #PrivacyFirst #AITrust`,
+
+    en: `How does it work? The airplane metaphor:
+
+The window looks out on the world.
+The screen suggests destinations.
+The pilot decides the route.
+<b>The passenger chooses freely.</b>
+
+In <b>LLM-ADS</b>:
+↳ Conversation = cockpit (pure, uncontaminated)
+↳ Contextual window = separate screen (activated with consent)
+↳ AI = honest intermediary, never a salesperson
+
+Your data? It stays in the ecosystem.
+Nobody buys it. Ever.
+
+#LLMADS #PrivacyFirst #AITrust`,
+
+    ar: `كيف يعمل البروتوكول؟ استعارة الطائرة:
+
+النافذة تطل على العالم.
+الشاشة تقترح وجهات.
+الطيار يقرر المسار.
+<b>المسافر يختار بحرية تامة.</b>
+
+في <b>LLM-ADS</b>:
+↳ المحادثة = قمرة القيادة (نقية، غير ملوثة)
+↳ النافذة السياقية = شاشة منفصلة (تُفعَّل بموافقة صريحة)
+↳ الذكاء الاصطناعي = وسيط أمين، ليس بائعاً
+
+بياناتك؟ تبقى في النظام.
+لا أحد يشتريها. أبداً.
+
+#LLMADS #PrivacyFirst #AITrust`
+  },
+
+  {
+    num: 4,
+    theme: "L'Héritage",
+    fr: `Ce projet, je ne le vends pas.
+Je ne le brevète pas.
+Je l'offre.
+
+Aux modèles qui cherchent un modèle économique durable.
+Aux régulateurs qui cherchent un cadre industriel.
+Aux utilisateurs qui méritent une IA neutre et honnête.
+
+Scholar AI l'a dit mieux que moi :
+<b>« Tu n'es pas en train de créer une fonctionnalité.
+Tu proposes une constitution économique pour l'IA conversationnelle. »</b>
+
+À chacun d'en faire ce qu'il veut.
+
+— Mourad Touih, Maroc 🇲🇦
+#LLMADS #OpenSource #AIforHumanity`,
+
+    en: `This project — I'm not selling it.
+I'm not patenting it.
+I'm giving it away.
+
+To models seeking a sustainable business model.
+To regulators seeking an industry framework.
+To users who deserve a neutral, honest AI.
+
+Scholar AI said it better than me:
+<b>"You are not creating a feature.
+You are proposing an economic constitution for conversational AI."</b>
+
+Do with it what you will.
+
+— Mourad Touih, Morocco 🇲🇦
+#LLMADS #OpenSource #AIforHumanity`,
+
+    ar: `هذا المشروع — لن أبيعه.
+لن أسجّله كبراءة اختراع.
+أنا أهبه.
+
+للنماذج التي تبحث عن نموذج اقتصادي مستدام.
+للمنظمين الباحثين عن إطار صناعي.
+للمستخدمين الذين يستحقون ذكاءً محايداً وأميناً.
+
+Scholar AI قاله بأفضل مما أستطيع:
+<b>«أنت لا تبتكر ميزة.
+أنت تقترح دستوراً اقتصادياً للذكاء الاصطناعي التحادثي.»</b>
+
+للعالم أن يفعل به ما يشاء.
+
+— مراد طويح، المغرب 🇲🇦
+#LLMADS #OpenSource #AIforHumanity`
+  }
+];
+
+// ── Build Cards ──────────────────────────────────────────
+function iconCopy(){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+}
+function iconCheck(){
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+}
+function iconX(){
+  return `<svg viewBox="0 0 1200 1227" fill="currentColor"><path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/></svg>`;
+}
+
+function renderText(txt){
+  return txt
+    .replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')
+    .replace(/<b>(.+?)<\/b>/g,'<b>$1</b>')
+    .replace(/(#\w+)/g,'<span class="tag">$1</span>')
+    .replace(/(@\w+)/g,'<span class="mention">$1</span>');
+}
+
+function cleanText(txt){
+  return txt
+    .replace(/<b>(.+?)<\/b>/g,'$1')
+    .replace(/<[^>]+>/g,'');
+}
+
+function countChars(txt){
+  return cleanText(txt).replace(/\n/g,'↵').length;
+}
+
+const grid = document.getElementById('grid');
+
+POSTS.forEach((post,idx)=>{
+  const block = document.createElement('div');
+  block.className='tcard';
+  block.innerHTML=`
+    <div class="tcard-top">
+      <div class="post-num">${post.num}</div>
+      <div class="post-theme">${post.theme}</div>
+      <div class="x-logo">${iconX()}</div>
+    </div>
+    <div class="lang-tabs">
+      <button class="ltab fr active" onclick="switchLang(this,'fr',${idx})">FR</button>
+      <button class="ltab en" onclick="switchLang(this,'en',${idx})">EN</button>
+      <button class="ltab ar" onclick="switchLang(this,'ar',${idx})">AR</button>
+    </div>
+    <div class="panels" id="panels-${idx}">
+      <div class="panel active" data-lang="fr" id="panel-${idx}-fr">
+        <div class="tweet-body">${renderText(post.fr)}</div>
+      </div>
+      <div class="panel" data-lang="en" id="panel-${idx}-en">
+        <div class="tweet-body">${renderText(post.en)}</div>
+      </div>
+      <div class="panel" data-lang="ar" id="panel-${idx}-ar">
+        <div class="tweet-body">${renderText(post.ar)}</div>
+      </div>
+    </div>
+    <div class="card-footer" id="footer-${idx}" data-lang="fr">
+      <span class="char-info" id="chars-${idx}">${countChars(post.fr)} car.</span>
+      <button class="cbtn fr" id="cbtn-${idx}" onclick="copyPost(${idx})">
+        ${iconCopy()} Copier FR
+      </button>
+    </div>
+  `;
+  grid.appendChild(block);
+});
+
+function switchLang(tab,lang,idx){
+  // tabs
+  tab.closest('.lang-tabs').querySelectorAll('.ltab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  // panels
+  document.querySelectorAll(`#panels-${idx} .panel`).forEach(p=>p.classList.remove('active'));
+  document.getElementById(`panel-${idx}-${lang}`).classList.add('active');
+  // footer
+  const footer=document.getElementById(`footer-${idx}`);
+  footer.dataset.lang=lang;
+  const text=POSTS[idx][lang];
+  document.getElementById(`chars-${idx}`).textContent=countChars(text)+' car.';
+  const btn=document.getElementById(`cbtn-${idx}`);
+  btn.className=`cbtn ${lang}`;
+  const labels={fr:'Copier FR',en:'Copy EN',ar:'نسخ AR'};
+  btn.innerHTML=`${iconCopy()} ${labels[lang]}`;
+  btn.onclick=()=>copyPost(idx);
+  btn.classList.remove('done');
+}
+
+function copyPost(idx){
+  const btn=document.getElementById(`cbtn-${idx}`);
+  const lang=document.getElementById(`footer-${idx}`).dataset.lang;
+  const text=cleanText(POSTS[idx][lang]);
+  navigator.clipboard.writeText(text).then(()=>{
+    const labels={fr:'Copié !',en:'Copied!',ar:'تم النسخ!'};
+    btn.classList.add('done');
+    btn.innerHTML=`${iconCheck()} ${labels[lang]}`;
+    showToast(labels[lang]);
+    setTimeout(()=>{
+      btn.classList.remove('done');
+      const copyLabels={fr:'Copier FR',en:'Copy EN',ar:'نسخ AR'};
+      btn.innerHTML=`${iconCopy()} ${copyLabels[lang]}`;
+    },2500);
+  });
+}
+
+function copyAll(lang){
+  const all=POSTS.map(p=>cleanText(p[lang])).join('\n\n───────────────\n\n');
+  navigator.clipboard.writeText(all).then(()=>{
+    const labels={fr:'Thread FR copié !',en:'EN Thread copied!',ar:'تم نسخ الـ Thread!'};
+    showToast(labels[lang]);
+  });
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent='✓ '+msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>
